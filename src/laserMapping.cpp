@@ -882,7 +882,10 @@ int main(int argc, char **argv) {
             ("/aft_mapped_to_init", 100000);
     ros::Publisher pubPath = nh.advertise<nav_msgs::Path>
             ("/path", 100000);
-
+    ros::Publisher pubBa = nh.advertise<geometry_msgs::Point>
+            ("/ba", 100000);
+        ros::Publisher pubG = nh.advertise<geometry_msgs::Point>
+            ("/g", 100000);
 //------------------------------------------------------------------------------------------------------
     signal(SIGINT, SigHandle);
     ros::Rate rate(5000);
@@ -1141,6 +1144,7 @@ int main(int argc, char **argv) {
             /******* Publish odometry *******/
             publish_odometry(pubOdomAftMapped);
 
+
             /*** add the feature points to map kdtree ***/
             map_incremental();
 
@@ -1161,6 +1165,16 @@ int main(int argc, char **argv) {
             publish_effect_world(pubLaserCloudEffect);
             if (path_en) publish_path(pubPath);
             //publish_mavros(mavros_pose_publisher);
+            geometry_msgs::Point ba;
+            ba.x = state.bias_a[0];
+            ba.y = state.bias_a[1];
+            ba.z = state.bias_a[2];
+            pubBa.publish(ba);
+            geometry_msgs::Point g;
+            g.x = state.gravity[0];
+            g.y = state.gravity[1];
+            g.z = state.gravity[2];
+            pubG.publish(g);
 
             frame_num++;
             V3D ext_euler = RotMtoEuler(state.offset_R_L_I);
